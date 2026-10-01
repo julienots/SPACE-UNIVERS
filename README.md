@@ -199,3 +199,12 @@ Trois boutons à gauche de l'écran (⏳ ⚫ 🧬) ouvrent des écrans plein éc
 - Formation des planètes à partir du disque de matière autour des étoiles
 - Systèmes de jeu (ressources, sauvegarde de l'univers créé)
 - Emballage Android (APK) et Phaser en local pour le hors-ligne
+
+## v0.26 — titans cosmiques 3D
+- **Titan Léviathan** : nouvelle créature colossale invoquable depuis la colonne des pouvoirs. Son rayon est nettement supérieur aux autres monstres, il est repérable au radar et le toucher ouvre son aperçu WebGL.
+- **Aperçu WebGL enrichi** : choix Dragon / Serpent / Titan ; le Titan possède un noyau blindé, huit bras volumétriques, des pointes cristallines, des yeux émissifs et une animation indépendante des bras.
+
+## v0.27 — rendu planète ultra
+- **Qualité Ultra** dans Réglages : textures procédurales jusqu’à 2048 px sur ordinateur, jusqu’à 1408 px pour les disques de planète proches et rendu de surface à 720 colonnes (réduit automatiquement sur mobile).
+- **Surfaces enrichies** : mondes océaniques et glacés ont maintenant une couche de nuages indépendante, semi-transparente et animée au-dessus du relief ; le nombre de nappes augmente avec la qualité.
+- **Gestion qualité** : le mode Auto reste prudent et ne bascule jamais seul sur Ultra afin de préserver la fluidité et la batterie.

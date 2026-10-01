@@ -43,6 +43,25 @@
     root.userData.kind='serpent'; root.userData.segs=segs; root.userData.phase=(seed||2)%1000; return root;
   }
 
+  // Une silhouette immédiatement lisible à grande distance : un noyau blindé,
+  // huit bras segmentés et des cristaux emissifs. Contrairement à un sprite,
+  // tous les éléments restent de vrais volumes éclairés par WebGL.
+  function buildLeviathan(T,seed){
+    const root=new T.Group(), shell=mat(T,0x27306a,.3,.28), plate=mat(T,0x6974ba,.42,.18), dark=mat(T,0x10142d,.56,.15), glowMat=mat(T,0x57eaff,.16,.1,4.5), tooth=mat(T,0xd9edff,.38,.08);
+    const core=sphere(T,2.2,shell,28); core.scale.set(1.25,.9,1.25); root.add(core);
+    const crown=sphere(T,1.2,plate,22); crown.scale.set(1,.65,.7); crown.position.set(0,.75,1.7); root.add(crown);
+    const jaw=sphere(T,1.05,dark,20); jaw.scale.set(1.15,.35,.8); jaw.position.set(0,-.55,2.05); root.add(jaw);
+    for(const side of [-1,1]) for(let i=0;i<4;i++){
+      const a=(i-1.5)*.46, x=side*(1.25+Math.abs(a)*.25), pts=[];
+      for(let j=0;j<7;j++) pts.push(new T.Vector3(x+side*j*.28,.12+Math.sin(a+j*.55)*.25,1.0+a-j*.86));
+      const arm=tube(T,pts,.22,plate); arm.userData.arm=i+(side>0?4:0); root.add(arm);
+      const tip=sphere(T,.28,glowMat,12);tip.position.copy(pts[pts.length-1]);root.add(tip);
+    }
+    for(let i=0;i<9;i++){const a=i*TAU/9, crystal=new T.Mesh(new T.ConeGeometry(.18,.85,6),glowMat);crystal.position.set(Math.cos(a)*1.72,.25,Math.sin(a)*1.72);crystal.lookAt(0,0,0);crystal.rotateX(Math.PI*.5);root.add(crystal);}
+    for(const side of [-1,1]){const eye=sphere(T,.22,glowMat,14);eye.position.set(side*.58,.35,2.28);root.add(eye);for(let i=0;i<3;i++){const t=new T.Mesh(new T.ConeGeometry(.09,.48,7),tooth);t.position.set(side*.28,-.65,2.63-i*.24);t.rotation.x=Math.PI;root.add(t);}}
+    root.userData.kind='leviathan'; root.userData.phase=(seed||3)%1000; return root;
+  }
+
   function makePlanet(T,i){
     const colors=[0x2b72d6,0x4e9b57,0xc88948,0x8dbbd8,0xb85b4e,0x9d76c9];
     const r=1.1+(i%3)*.35, p=sphere(T,r,mat(T,colors[i%colors.length],.78,.02),20); p.position.set(-7+i*2.8,((i%2)*2-1)*1.5,-4-(i%3)*2); p.userData.radius=r; p.userData.alive=true; return p;
@@ -68,6 +87,9 @@
       c.children.forEach((q,i)=>{ if(i%7===0) q.rotation.x=Math.sin(t*2+i)*.18; });
     }else if(c.userData.segs){
       c.userData.segs.forEach((s,i)=>{s.position.x=Math.sin(t*1.7-i*.55)*(.16+i*.008);s.position.y=Math.sin(t*1.1-i*.25)*.10;});
+    }else if(c.userData.kind==='leviathan'){
+      c.rotation.y+=dt*.18;
+      c.children.forEach((q,i)=>{if(q.userData.arm!=null)q.rotation.y=Math.sin(t*1.5+q.userData.arm)*.22; if(i%5===0)q.rotation.z=Math.sin(t*2+i)*.035;});
     }
   }
 
@@ -76,7 +98,7 @@
     const T=window.THREE;
     if(!M.root){
       M.root=document.createElement('div');M.root.id='monster3d';
-      M.root.innerHTML='<div class="m3d-top"><b id="m3dTitle">CRÉATURE 3D</b><span id="m3dInfo">Aucune créature n’apparaît automatiquement</span></div><button id="m3dClose">✕</button><div id="m3dCanvas"></div><div class="m3d-actions"><button data-kind="dragon">🐉 DRAGON</button><button data-kind="serpent">🐍 SERPENT</button></div><div class="m3d-bottom">Déplacement lent • chasse aux planètes • rendu WebGL optimisé</div>';
+      M.root.innerHTML='<div class="m3d-top"><b id="m3dTitle">CRÉATURE 3D</b><span id="m3dInfo">Aucune créature n’apparaît automatiquement</span></div><button id="m3dClose">✕</button><div id="m3dCanvas"></div><div class="m3d-actions"><button data-kind="dragon">🐉 DRAGON</button><button data-kind="serpent">🐍 SERPENT</button><button data-kind="leviathan">🦑 TITAN</button></div><div class="m3d-bottom">Volumes WebGL • matériaux PBR • prédateur colossal</div>';
       document.body.appendChild(M.root); M.root.querySelector('#m3dClose').onclick=close;
       M.root.querySelectorAll('.m3d-actions button').forEach(b=>b.onclick=()=>spawn(b.dataset.kind));
     }
@@ -93,7 +115,7 @@
     rebuildPlanets(T); spawn(data.kind || data.type || 'dragon',data.seed||Date.now(),data.name); M.resize();
   }
   function spawn(kind='dragon',seed=Date.now(),name=''){
-    if(!M.scene||!window.THREE)return; const T=window.THREE;if(M.creature)M.scene.remove(M.creature);M.type=kind;M.creature=kind==='serpent'?buildSerpent(T,seed):buildDragon(T,seed);M.creature.position.set(0,1,10);M.scene.add(M.creature);M.camera.position.set(0,2.5,19);M.camera.lookAt(0,0,0);if(M.target)M.target.userData.alive=false;chooseTarget();const title=M.root.querySelector('#m3dTitle'),info=M.root.querySelector('#m3dInfo');title.textContent=kind==='serpent'?'🐍 SERPENT 3D':'🐉 DRAGON 3D';info.textContent=name ? name + ' • aperçu 3D' : 'Créé par le joueur • déplacement lent • mange les planètes';}
+    if(!M.scene||!window.THREE)return; const T=window.THREE;if(M.creature)M.scene.remove(M.creature);M.type=kind;M.creature=kind==='serpent'?buildSerpent(T,seed):kind==='leviathan'?buildLeviathan(T,seed):buildDragon(T,seed);M.creature.position.set(0,1,10);M.creature.scale.setScalar(kind==='leviathan'?1.35:1);M.scene.add(M.creature);M.camera.position.set(0,2.5,19);M.camera.lookAt(0,0,0);if(M.target)M.target.userData.alive=false;chooseTarget();const title=M.root.querySelector('#m3dTitle'),info=M.root.querySelector('#m3dInfo');title.textContent=kind==='serpent'?'🐍 SERPENT 3D':kind==='leviathan'?'🦑 TITAN LÉVIATHAN 3D':'🐉 DRAGON 3D';info.textContent=name ? name + ' • aperçu 3D' : 'Créé par le joueur • déplacement lent • mange les planètes';}
   function close(){if(M.root)M.root.classList.remove('on');}
   X.Monster3D={open,close,spawn};
 })();

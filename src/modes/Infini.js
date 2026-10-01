@@ -2,7 +2,7 @@
 (function () {
   const TAU = 6.2832, C = 900, RC = CU.mobile ? 1 : 3, cl = (v, a, b) => v < a ? a : v > b ? b : v, rgb = (c, a) => 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + a + ')';
   const MONSTER_COLORS = [[80,220,190],[160,90,255],[255,80,100],[120,190,255]]; const SC = [[255, 122, 74], [255, 168, 88], [255, 227, 138], [255, 244, 224], [168, 200, 255], [255, 90, 58]], NC = [[255, 90, 190], [90, 150, 255], [120, 240, 230], [255, 170, 90]], NM = ['Planète océanique', 'Planète désertique', 'Planète glacée', 'Planète volcanique', 'Géante gazeuse'], KN = ['Étoile', '', 'Trou noir', 'Nébuleuse'];
-  let W = 0, H = 0, F = 0, cx, ui, E = {}, yaw = 0, pitch = 0, px = 450, py = 450, pz = 100, wv = 0, warp = false, sd = 1, cells = new Map(), vis = [], vk = '', ob = [], tm = 0, nd = 1e9, kd = null, ts = 0, btn = null, vel = 0, thr = false, brk = false, bb = null, ap = false, tg = null, lk = null, scEl = null, scT = 0, apb = null, cf = 0, orb = 0, tsx = 1, tbt = null, sel = null, fl = 0, apw = false, kill = {}, mods = {}, gvx = 0, gvy = 0, gvz = 0, gm = 0, bhx = 0, bhy = 0, bhr = 0, joy = null, zm = 1, lz = null, ex = null, shk = 0, hs = null, age = 13800, le = -1, bz = null, pa = 13800, shx = 0, shy = 0, shw = 100, rl = 0, lyaw = 0, cfg = { hu: 0, co: 0, en: 0, tr: 0, ds: 2, bh: 2, nb: 2, hd: 0, nm: 'Odyssée' }, hg = null, lbtn = null, lp = null, sf = null, whCd = 0; const bcs = [], whs = [], wc = { st: new Float32Array(0), o: whs }, WM = new Map(); const gods = [], gc = { st: new Float32Array(0), o: gods };
+  let W = 0, H = 0, F = 0, cx, ui, E = {}, yaw = 0, pitch = 0, px = 450, py = 450, pz = 100, wv = 0, warp = false, sd = 1, cells = new Map(), vis = [], vk = '', ob = [], tm = 0, nd = 1e9, kd = null, ts = 0, btn = null, vel = 0, thr = false, brk = false, bb = null, ap = false, tg = null, lk = null, scEl = null, scT = 0, apb = null, cf = 0, orb = 0, tsx = 1, tbt = null, sel = null, fl = 0, apw = false, kill = {}, mods = {}, gvx = 0, gvy = 0, gvz = 0, gm = 0, bhx = 0, bhy = 0, bhr = 0, joy = null, zm = 1, lz = null, ex = null, shk = 0, hs = null, age = 13800, le = -1, bz = null, pa = 13800, shx = 0, shy = 0, shw = 100, rl = 0, lyaw = 0, cfg = { hu: 0, co: 0, en: 0, tr: 0, ds: 2, bh: 2, nb: 2, hd: 0, nm: 'Odyssée' }, hg = null, lbtn = null, lp = null, sf = null, whCd = 0, qStamp = ''; const bcs = [], whs = [], wc = { st: new Float32Array(0), o: whs }, WM = new Map(); const gods = [], gc = { st: new Float32Array(0), o: gods };
   const hh = (a, b, c, k) => { let h = Math.imul(a, 374761393) ^ Math.imul(b, 668265263) ^ Math.imul(c, 1274126177) ^ Math.imul(k + sd, 1103515245); h = Math.imul(h ^ h >>> 13, 1274126177); return ((h ^ h >>> 16) >>> 0) / 4294967296; };
   function cell(ix, iy, iz) { // une cellule = 14 étoiles de fond + (parfois) un objet : étoile 15 %, planète 16 %, trou noir 1,5 %, nébuleuse 5,5 %
     const key = ix + ',' + iy + ',' + iz; let c = cells.get(key); if (c) return c;
@@ -22,8 +22,9 @@
     for (let a = -RC; a <= RC; a++) for (let b = -RC; b <= RC; b++) for (let c = -RC; c <= RC; c++) vis.push(cell(ix + a, iy + b, iz + c)); vis.push(gc); vis.push(wc); updateWH();
     if (cells.size > 700) cells.forEach((v, k) => { if (Math.abs(v.ix - ix) > RC + 1 || Math.abs(v.iy - iy) > RC + 1 || Math.abs(v.iz - iz) > RC + 1) cells.delete(k); });
   }
+  function planetQuality() { const q = CU.Q && CU.Q.tier || 'high'; return q === 'ultra' ? { map: CU.mobile ? 1152 : 2048, cap: CU.mobile ? 896 : 1408 } : q === 'high' ? { map: CU.mobile ? 768 : 1280, cap: CU.mobile ? 640 : 1024 } : q === 'med' ? { map: CU.mobile ? 640 : 896, cap: CU.mobile ? 512 : 768 } : { map: 512, cap: CU.mobile ? 384 : 576 }; }
   function mk(o, S) { // planète haute définition : texture procédurale + éclairage physique simplifié, sans pixelisation visible
-    S = S || (CU.mobile ? 512 : 768); o.spS = S; const T = CU.X3.ptex(o, CU.mobile ? 640 : 896), c = document.createElement('canvas'); c.width = c.height = S; const x = c.getContext('2d'), im = x.createImageData(S, S), D = im.data, at = CU.X3.ATM[o.t], off = (o.seed % 628) / 100;
+    const pq = planetQuality(); S = S || pq.cap; o.spS = S; const T = CU.X3.ptex(o, pq.map), c = document.createElement('canvas'); c.width = c.height = S; const x = c.getContext('2d'), im = x.createImageData(S, S), D = im.data, at = CU.X3.ATM[o.t], off = (o.seed % 628) / 100;
     for (let j = 0, k = 0; j < S; j++) for (let i = 0; i < S; i++, k += 4) {
       const u = (i + 0.5) / S * 2 - 1, v = 1 - (j + 0.5) / S * 2, r2 = u * u + v * v; if (r2 >= 1) continue; const nz = Math.sqrt(1 - r2), uu = ((Math.atan2(nz, u) + off) / TAU % 1 + 1) % 1 * T.w, vv = Math.min(T.h - 1, Math.max(0, (Math.asin(v) / 3.1416 + 0.5) * T.h - 0.5)), xa0 = Math.floor(uu - 0.5), wx = uu - 0.5 - xa0, xa = (xa0 + T.w) % T.w, xb = (xa + 1) % T.w, y0 = vv | 0, y1 = Math.min(T.h - 1, y0 + 1), wy = vv - y0, ia = (y0 * T.w + xa) * 4, ib = (y0 * T.w + xb) * 4, ic = (y1 * T.w + xa) * 4, id = (y1 * T.w + xb) * 4, w0 = (1 - wx) * (1 - wy), w1 = wx * (1 - wy), w2 = (1 - wx) * wy, w3 = wx * wy, cc = (T.cl[y0 * T.w + xa] * w0 + T.cl[y0 * T.w + xb] * w1 + T.cl[y1 * T.w + xa] * w2 + T.cl[y1 * T.w + xb] * w3) / 255;
       const dl = -0.62 * u + 0.35 * v + 0.7 * nz, tt = cl((dl + 0.1) / 0.4, 0, 1), sh = 0.06 + 0.94 * tt * tt * (3 - 2 * tt), f = Math.pow(1 - nz, 3) * (0.2 + 0.8 * Math.max(0, dl + 0.3));
@@ -32,8 +33,11 @@
     x.putImageData(im, 0, 0); return c;
   }
   function glow(x, y, r, c, a) { const g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, rgb(c, a)); g.addColorStop(0.4, rgb(c, a * 0.3)); g.addColorStop(1, rgb(c, 0)); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
+  function refreshQualityAssets() { const stamp = CU.Q ? CU.Q.tier : 'high'; if (stamp === qStamp) return; qStamp = stamp; SFB = null;
+    const clear = o => { delete o.sp; delete o.spS; }; cells.forEach(c => c.o.forEach(clear)); gods.forEach(clear);
+  }
   function frame(dt) {
-    const ds = Math.min(0.05, dt / 1000); tm += ds; if (sf) { drawSurface(ds); return; } orb += ds * Math.min(tsx, 500) * (1 - 0.85 * cl(gm / 80, 0, 1)); if (tsx > 1 && age < 13800) age = Math.min(13800, age + ds * (tsx / 10) * Math.min(1, 0.002 + age / 5)); const eI = eraIdx(); if (eI !== le) { if (le >= 0 && eI > le) say('✦ ' + ERA[eI]); le = eI; } wv += (((warp || apw) ? 1 : 0) - wv) * Math.min(1, ds * 1.3); rebuild();
+    refreshQualityAssets(); const ds = Math.min(0.05, dt / 1000); tm += ds; if (sf) { drawSurface(ds); return; } orb += ds * Math.min(tsx, 500) * (1 - 0.85 * cl(gm / 80, 0, 1)); if (tsx > 1 && age < 13800) age = Math.min(13800, age + ds * (tsx / 10) * Math.min(1, 0.002 + age / 5)); const eI = eraIdx(); if (eI !== le) { if (le >= 0 && eI > le) say('✦ ' + ERA[eI]); le = eI; } wv += (((warp || apw) ? 1 : 0) - wv) * Math.min(1, ds * 1.3); rebuild();
     if (bb) { bb.t += ds; thr = false; ap = false; vel = 0; if (bb.t > 3.0 && !bb.done) { bb.done = 1; newUniverse(); } if (bb.t > 11.5) { bb = null; say('Âge zéro. ⏩ TEMPS fait avancer le temps : regarde l\'univers se construire, et navigue en même temps.'); } }
     if (ap && tg) { const dx = tg.x - px, dy = tg.y - py, dz = tg.z - pz, dd = Math.hypot(dx, dy, dz) || 1; let a = Math.atan2(-dx, dz) - yaw; a = Math.atan2(Math.sin(a), Math.cos(a)); yaw += a * Math.min(1, ds * 2.2); pitch += (Math.asin(cl(dy / dd, -1, 1)) - pitch) * Math.min(1, ds * 2.2); apw = dd - tg.r > 4000; if (dd - tg.r < tg.r * 0.7 + 25) stopAp(); }
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), fx = -sy * cp, fy = sp, fz = cy * cp, ux = sy * sp, uy = cp, uz = -cy * sp;
@@ -56,13 +60,13 @@
       if (o.k !== 3 && o.k !== 2 && o.k !== 4 && o.k !== 6) { if (d < o.r * 1.15) { const k = o.r * 1.15 / (d || 1); px = o.x - dx * k; py = o.y - dy * k; pz = o.z - dz * k; dx = o.x - px; dy = o.y - py; dz = o.z - pz; d = o.r * 1.15; } if (d - o.r < best) best = d - o.r; }
       o.zc = dx * fx + dy * fy + dz * fz; o.dx = dx; o.dy = dy; o.dz = dz; o.d = d; if (o.zc > 2) { o.sx = null; ob.push(o); } }
     gm = Math.hypot(gax, gay, gaz); if (gm) { gvx += gax * ds; gvy += gay * ds; gvz += gaz * ds; } else { const q = Math.exp(-ds * 3); gvx *= q; gvy *= q; gvz *= q; } px += gvx * ds; py += gvy * ds; pz += gvz * ds; if (eat) fall(); if (wh) enterWH(wh);
-    nd = best; ob.sort((a, b) => b.zc - a.zc); updateGods(ds); drawEra(X0, Y0); drawOrbits(X0, Y0, fx, fy, fz, cy, sy, ux, uy, uz, Fw); drawBang(ds, X0, Y0, fx, fy, fz, cy, sy, ux, uy, uz, Fw); let bud = 1, lb = '', ld = 1e9, lo = null;
+    nd = best; ob.sort((a, b) => b.zc - a.zc); updateGods(ds); drawEra(X0, Y0); drawOrbits(X0, Y0, fx, fy, fz, cy, sy, ux, uy, uz, Fw); drawBang(ds, X0, Y0, fx, fy, fz, cy, sy, ux, uy, uz, Fw); let bud = (CU.Q && CU.Q.tier === 'ultra') ? 2 : 1, lb = '', ld = 1e9, lo = null;
     for (const o of ob) {
       const k = Fw / o.zc, x = X0 + (o.dx * cy + o.dz * sy) * k, y = Y0 - (o.dx * ux + o.dy * uy + o.dz * uz) * k, r = o.r * k, a = cl((1 - o.d / fade) * 3, 0, 1); o.sx = x; o.sy = y; o.sr = r; if (x < -r * 3 || y < -r * 3 || x > W + r * 3 || y > H + r * 3) continue; const ba = cl((age - o.bt) / 150, 0, 1); cx.globalAlpha = a * ba;
       if (o.k === 6) drawMonster(o, x, y, r); else if (o.k === 4) drawWorm(o, x, y, r); else if (o.k === 3) drawNeb(o, x, y, r);
       else if (o.k === 0) drawStar(o, x, y, r);
       else if (o.k === 1) { if (r < 1.5) { cx.fillStyle = rgb(o.t === 0 ? [80, 140, 255] : [200, 160, 110], 1); cx.fillRect(x, y, 2, 2); } else {
-        if (!o.sp && bud > 0 && r > 6) { o.sp = mk(o, Math.min(CU.mobile ? 512 : 768, Math.max(256, 32 * Math.ceil(r * 2 * CU.Modes.size.dpr / 32)))); bud--; } else if (o.sp && bud > 0 && o.spS < (CU.mobile ? 384 : 512) && r * 2 * CU.Modes.size.dpr > o.spS * 1.15) { o.sp = mk(o, Math.min(CU.mobile ? 512 : 768, 32 * Math.ceil(r * 2 * CU.Modes.size.dpr / 32))); bud--; }
+        const pq = planetQuality(); if (!o.sp && bud > 0 && r > 6) { o.sp = mk(o, Math.min(pq.cap, Math.max(256, 32 * Math.ceil(r * 2 * CU.Modes.size.dpr / 32)))); bud--; } else if (o.sp && bud > 0 && o.spS < pq.cap && r * 2 * CU.Modes.size.dpr > o.spS * 1.15) { o.sp = mk(o, Math.min(pq.cap, 32 * Math.ceil(r * 2 * CU.Modes.size.dpr / 32))); bud--; }
         if (o.sp) { cx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.3, CU.X3.ATM[o.t], 0.22); cx.globalCompositeOperation = 'source-over'; let la = 0; if (o.par) { const q = o.par, ex = (q.dx - o.dx) * cy + (q.dz - o.dz) * sy, ey = -((q.dx - o.dx) * ux + (q.dy - o.dy) * uy + (q.dz - o.dz) * uz); la = Math.atan2(ey, ex) + 2.634; } cx.save(); cx.translate(x, y); cx.rotate(la); cx.drawImage(o.sp, -r, -r, r * 2, r * 2); cx.restore(); if (r > 6) { const at = ATM[o.t % 5], g = cx.createRadialGradient(x, y, r * 0.88, x, y, r * 1.22); g.addColorStop(0, rgb(at, 0)); g.addColorStop(0.45, rgb(at, o.t === 4 ? 0.2 : 0.42)); g.addColorStop(1, rgb(at, 0)); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = g; cx.beginPath(); cx.arc(x, y, r * 1.22, 0, TAU); cx.fill(); cx.globalCompositeOperation = 'source-over'; } } else { cx.fillStyle = rgb(CU.X3.PAL[o.t][1], 1); cx.beginPath(); cx.arc(x, y, r, 0, TAU); cx.fill(); }
         if (o.sp) for (let m = 0, nm = o.seed % 3; m < nm; m++) { const an = orb * 3 / (m + 1) + m * 2.1 + o.seed, rr = r * (2.1 + m * 0.7), mx = x + Math.cos(an) * rr, my = y + Math.sin(an) * rr * 0.28, mr = Math.max(1.2, r * (0.13 + m * 0.04)); cx.fillStyle = '#9a9a98'; cx.beginPath(); cx.arc(mx, my, mr, 0, TAU); cx.fill(); }
         if (o.ring) { cx.strokeStyle = 'rgba(225,205,160,.55)'; cx.lineWidth = Math.max(1, r * 0.12); cx.beginPath(); cx.ellipse(x, y, r * 1.8, r * 0.45, -0.3, 0, TAU); cx.stroke(); } } }
@@ -110,9 +114,9 @@
     // Les créatures sont des objets du monde, pas seulement une prévisualisation WebGL :
     // elles sont donc immédiatement ajoutées à `gods`, rendu et radar inclus.
     const fx = -Math.sin(yaw) * Math.cos(pitch), fy = Math.sin(pitch), fz = Math.cos(yaw) * Math.cos(pitch), r = Math.random, c = (r() * MONSTER_COLORS.length) | 0;
-    const e = { g: 1, bt: age - 200, k: 6, variant: kind === 'serpent' ? 'serpent' : 'dragon', x: px + fx * 1100, y: py + fy * 1100, z: pz + fz * 1100, seed: (r() * 1e9) | 0, t: c, c: MONSTER_COLORS[c], r: 240 + r() * 260, phase: r() * TAU, tent: 9 + ((r() * 6) | 0), speed: 0.5 + r() * 0.7 };
+    const variant = kind === 'serpent' ? 'serpent' : kind === 'leviathan' ? 'leviathan' : 'dragon'; const e = { g: 1, bt: age - 200, k: 6, variant, x: px + fx * 1500, y: py + fy * 1500, z: pz + fz * 1500, seed: (r() * 1e9) | 0, t: c, c: MONSTER_COLORS[c], r: variant === 'leviathan' ? 520 + r() * 380 : 240 + r() * 260, phase: r() * TAU, tent: variant === 'leviathan' ? 16 + ((r() * 8) | 0) : 9 + ((r() * 6) | 0), speed: 0.5 + r() * 0.7 };
     gods.push(e); sel = e; fl = 0.9;
-    say((e.variant === 'serpent' ? '🐍 Serpent cosmique créé : ' : '🐉 Dragon cosmique créé : ') + nm(e));
+    say((e.variant === 'serpent' ? '🐍 Serpent cosmique créé : ' : e.variant === 'leviathan' ? '🦑 Titan léviathan créé : ' : '🐉 Dragon cosmique créé : ') + nm(e));
     CU.Save.mark();
   }
   function create(k) { const fx = -Math.sin(yaw) * Math.cos(pitch), fy = Math.sin(pitch), fz = Math.cos(yaw) * Math.cos(pitch), t = (Math.random() * 5) | 0, r = Math.random;
@@ -306,7 +310,7 @@
     cx.strokeStyle = rgb(c, .45); cx.lineWidth = Math.max(1, r * .035); for (let i = -2; i <= 2; i++) { cx.beginPath(); cx.moveTo(i * r * .2, -r * .46); cx.lineTo(i * r * .13, -r * .82); cx.stroke(); }
     // yeux
     for (const ex of [-0.3, 0.3]) { cx.fillStyle = '#05040b'; cx.beginPath(); cx.ellipse(ex * r, -r * .16, r * .14, r * .18, 0, 0, TAU); cx.fill(); cx.fillStyle = '#dfffff'; cx.shadowColor = rgb(c, .9); cx.shadowBlur = r * .18; cx.beginPath(); cx.arc(ex * r, -r * .16, Math.max(1.5, r * .045), 0, TAU); cx.fill(); cx.shadowBlur = 0; }
-    cx.fillStyle = 'rgba(255,255,255,.75)'; cx.font = '600 ' + Math.max(9, Math.min(16, r * .11)) + 'px system-ui'; cx.textAlign = 'center'; cx.fillText('LÉVIATHAN', 0, r * 1.45); cx.restore();
+    cx.fillStyle = 'rgba(255,255,255,.75)'; cx.font = '600 ' + Math.max(9, Math.min(16, r * .11)) + 'px system-ui'; cx.textAlign = 'center'; cx.fillText(o.variant === 'leviathan' ? 'TITAN LÉVIATHAN' : 'LÉVIATHAN', 0, r * 1.45); cx.restore();
   }
   function drawWorm(o, x, y, r) { // trou de ver : sphère de verre iridescente, spirales, reflet
     r = Math.max(r, 3); cx.globalCompositeOperation = 'lighter'; glow(x, y, r * 2.4, [120, 200, 255], 0.35);
@@ -419,7 +423,7 @@
     const camH = sf.h, fg = sk[1];
     // Terrain haute définition : beaucoup plus de colonnes sur mobile pour supprimer l'effet voxel/pixelisé.
     // Le lissage final reste actif, mais la géométrie est calculée à une résolution proche de l'écran.
-    const tq = CU.Q ? CU.Q.tier : 'med', base = { low: 240, med: 360, high: 480 }[tq] || 360, BW = Math.max(180, Math.round(base * (CU.mobile ? 1 : 1.15))), BH = Math.max(120, Math.round(BW * H / W)), kS = BH / H, hzB = hz * kS, scB = sc * kS;
+    const tq = CU.Q ? CU.Q.tier : 'med', base = { low: 240, med: 360, high: 480, ultra: 720 }[tq] || 360, BW = Math.max(180, Math.round(base * (CU.mobile ? (tq === 'ultra' ? .82 : 1) : 1.15))), BH = Math.max(120, Math.round(BW * H / W)), kS = BH / H, hzB = hz * kS, scB = sc * kS;
     if (!SFB || SFB.w !== BW || SFB.h !== BH) { const c = document.createElement('canvas'); c.width = BW; c.height = BH; const x = c.getContext('2d'); SFB = { cv: c, cx: x, im: x.createImageData(BW, BH), w: BW, h: BH }; }
     const D = SFB.im.data; D.fill(0); const sk0 = sk[0];
     for (let i = 0; i < BW; i++) { const a = yaw - (i / BW - 0.5) * fov, dx = -Math.sin(a), dy = Math.cos(a); let ymax = BH, z = 3, pr = -1, pg = 0, pb = 0;
@@ -435,8 +439,13 @@
           pr = r; pg = g; pb = b; ymax = syy; }
         z += 1 + z * 0.025; } }
     SFB.cx.putImageData(SFB.im, 0, 0);
-    // Une légère profondeur atmosphérique donne un rendu plus naturel sans flouter les reliefs.
+    // Couche atmosphérique indépendante : bancs de nuages semi-transparents et
+    // ombres douces qui glissent au-dessus du relief, uniquement sur les mondes
+    // avec eau ou glace. Les positions sont déterministes pour chaque planète.
     cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high'; cx.drawImage(SFB.cv, 0, 0, W, H);
+    if (T === 0 || T === 2) { const clouds = tq === 'ultra' ? 18 : tq === 'high' ? 12 : 7; cx.save(); cx.globalCompositeOperation = 'screen';
+      for (let i = 0; i < clouds; i++) { const xx = ((h2(i, q, 31) * W + sf.x * (0.013 + i % 3 * .003) + tm * (8 + i % 4 * 2)) % (W + 240)) - 120, yy = hz * (.36 + h2(i, q, 41) * .48), rw = 45 + h2(i, q, 51) * 120, rh = rw * (.08 + h2(i, q, 61) * .12); const cg = cx.createRadialGradient(xx, yy, 0, xx, yy, rw); cg.addColorStop(0, 'rgba(245,252,255,.16)'); cg.addColorStop(.48, 'rgba(220,240,255,.07)'); cg.addColorStop(1, 'rgba(220,240,255,0)'); cx.fillStyle = cg; cx.beginPath(); cx.ellipse(xx, yy, rw, rh, h2(i, q, 71) - .5, 0, TAU); cx.fill(); }
+      cx.restore(); }
     const haze = cx.createLinearGradient(0, hz * 0.18, 0, H); haze.addColorStop(0, 'rgba(' + fg[0] + ',' + fg[1] + ',' + fg[2] + ',0.00)'); haze.addColorStop(0.72, 'rgba(' + fg[0] + ',' + fg[1] + ',' + fg[2] + ',0.025)'); haze.addColorStop(1, 'rgba(' + fg[0] + ',' + fg[1] + ',' + fg[2] + ',0.11)'); cx.fillStyle = haze; cx.fillRect(0, hz * 0.18, W, H - hz * 0.18);
     if (sf.t < 3) { cx.globalCompositeOperation = 'lighter'; cx.fillStyle = 'rgba(255,120,40,' + 0.35 * (1 - sf.t / 3) + ')'; cx.fillRect(0, 0, W, H); cx.globalCompositeOperation = 'source-over'; }
     if (E && E.s) E.s.textContent = '🪂 ' + nm(o) + ' · alt ' + Math.round(sf.h - g0) + ' m · ' + Math.round(sf.v) + ' m/s · ' + Math.round(sf.x) + ':' + Math.round(sf.y);
@@ -444,13 +453,13 @@
   }
   CU.Modes.register('inf', {
     open(c) {
-      cx = c.ctx; ui = c.ui; const s = CU.Save.d, M_ = CU.Modes; if (!s.seed) { s.seed = ((Math.random() * 1e9) | 0) + 1; CU.Save.mark(); } sd = s.seed; cells.clear(); vk = ''; nd = 1e9; wv = 0; warp = false; tm = ts = 0; orb = 0; tsx = 1; gvx = gvy = gvz = gm = 0;
+      cx = c.ctx; ui = c.ui; const s = CU.Save.d, M_ = CU.Modes; if (!s.seed) { s.seed = ((Math.random() * 1e9) | 0) + 1; CU.Save.mark(); } sd = s.seed; cells.clear(); qStamp = ''; vk = ''; nd = 1e9; wv = 0; warp = false; tm = ts = 0; orb = 0; tsx = 1; gvx = gvy = gvz = gm = 0;
       const v = s.inf || { x: 450, y: 450, z: 100, yaw: 0, pitch: 0 }; px = v.x; py = v.y; pz = v.z; yaw = v.yaw; pitch = v.pitch; gods.length = 0; if (v.g) gods.push(...v.g); kill = v.kl || {}; mods = v.md || {}; sel = null; fl = 0; joy = null; lz = ex = bz = null; zm = 1; shk = 0; age = v.ag != null ? v.ag : 13800; le = -1; pa = age; Object.assign(cfg, v.cf || {}); bcs.length = 0; if (v.bc) bcs.push(...v.bc); sf = null; lp = null; ui.innerHTML = '';
       const top = M_.el('div', 'tl', '<b>∞ Voyage infini</b><div class="agec"><i>⏳ ÂGE DE L\'UNIVERS</i><strong>0 an</strong><u></u></div><span></span>', ui); E = { s: top.querySelector('span'), a: top.querySelector('.agec strong'), e: top.querySelector('.agec u') }; const pn = M_.el('div', 'fl', null, ui);
       colL = M_.el('div', 'col l', null, ui), colR = M_.el('div', 'col r', null, ui), setL = (b, t) => { const i = t.indexOf(' '); b.innerHTML = '<span>' + t.slice(0, i) + '</span><em>' + t.slice(i + 1) + '</em>'; }, B = (t, c, p) => { const b = M_.el('button', 'fb s ' + (c || ''), p ? '' : t, p || pn); if (p) setL(b, t); return b; }, hold = (b, on, off) => { b.onpointerdown = e => { e.preventDefault(); on(); b.classList.add('on'); CU.Sound.ui(); }; b.onpointerup = b.onpointercancel = b.onpointerleave = () => { off(); b.classList.remove('on'); }; };
       scEl = M_.el('div', 'scan', '', ui); scEl.onclick = () => { scEl.style.display = 'none'; }; bb = null; vel = 0; thr = brk = ap = false; tg = lk = null;
       const bs = B('🔭 SCAN', '', colR), ba = B('🎯 APPROCHE', '', colR), bh = B('⌂ NATAL', 'g', colR), bt = B('⏩ TEMPS ×1', '', colR), bg = B('💥 BIG BANG', '', colR), bj = B('🌀 SAUT', '', colR), bl = B('🪂 ATTERRIR', '', colR); lbtn = bl; bl.onclick = () => { CU.Sound.ui(); if (sf) exitSurface(); else tryLand(); }; const gb = (t, f) => { const b = B(t, 'g', colL); b.onclick = () => { CU.Sound.ui(); f(); }; return b; };
-      gb('✨ ÉTOILE', () => create(0)); gb('✨ PLANÈTE', () => create(1)); gb('✨ TROU NOIR', () => create(2)); gb('🐉 INVOQUER DRAGON', () => createMonster('dragon')); gb('🐍 INVOQUER SERPENT', () => createMonster('serpent')); gb('☄ DÉTRUIRE', destroy); gb('🔄 CHANGER', change); gb('📍 REPÈRE', dropBeacon); bh.onclick = () => { CU.Sound.ui(); goHome(); };
+      gb('✨ ÉTOILE', () => create(0)); gb('✨ PLANÈTE', () => create(1)); gb('✨ TROU NOIR', () => create(2)); gb('🐉 INVOQUER DRAGON', () => createMonster('dragon')); gb('🐍 INVOQUER SERPENT', () => createMonster('serpent')); gb('🦑 INVOQUER TITAN', () => createMonster('leviathan')); gb('☄ DÉTRUIRE', destroy); gb('🔄 CHANGER', change); gb('📍 REPÈRE', dropBeacon); bh.onclick = () => { CU.Sound.ui(); goHome(); };
       const bf = B('■ FREIN'), bp = B('▲ POUSSER', 'go'), bw = B('⚡ LUMIÈRE'); btn = bw; apb = ba;
       bt.onclick = () => { CU.Sound.ui(); tsx = tsx === 1 ? 50 : tsx === 50 ? 500 : tsx === 500 ? 5000 : 1; setL(bt, '⏩ TEMPS ×' + tsx); }; bj.onclick = () => { CU.Sound.ui(); const d = 2e4 + Math.random() * 3e5, fx = -Math.sin(yaw) * Math.cos(pitch), fy = Math.sin(pitch), fz = Math.cos(yaw) * Math.cos(pitch); px += fx * d; py += fy * d; pz += fz * d; vel = 0; stopAp(); sel = null; vk = ''; fl = 0.9; shk = 10; say('🌀 Saut quantique : ' + Math.round(d / 1000) + ' ku franchis. Territoire inconnu.'); };
       bs.onclick = () => { CU.Sound.ui(); scan(); };

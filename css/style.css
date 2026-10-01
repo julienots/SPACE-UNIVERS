@@ -151,3 +151,7 @@ body.open #top,body.open #side,body.open #lvl,body.open #lv,body.open #stage,bod
 #mui .tl .agec i{font-style:normal;font-size:9px;letter-spacing:.18em;opacity:.65}
 #mui .tl .agec strong{font:700 19px ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 8px var(--c),0 0 18px var(--v)}
 #mui .tl .agec u{text-decoration:none;font-size:10px;color:var(--c);opacity:.85}
+
+/* Le sélecteur reste utilisable sur les téléphones étroits malgré la troisième créature. */
+.m3d-actions{flex-wrap:wrap;justify-content:center;width:min(94vw,520px)}
+.m3d-actions button{width:auto;min-width:104px}
