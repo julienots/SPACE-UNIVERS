@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#03000f">
+<title>Créateur d'univers</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-g="void">
+<div id="game"></div>
+<header class="hud" id="top"><h1>Créateur d'univers</h1><p id="sub">Le néant… Appuie sur BIG BANG pour créer l'univers</p></header>
+<div id="flash"></div>
+<div id="side"><button id="fast" aria-label="Accélérer">⏩</button><button id="again" aria-label="Nouvel univers">↺</button></div>
+<div id="lvl"></div>
+<div id="lv"><button data-l="0">✦ Univers</button><button data-l="1">🌀 Galaxie</button><button data-l="2">☀ Système</button><button data-l="3">🪐 Planète</button></div>
+<div id="stage"><b id="sn"></b><i id="sd"></i></div>
+<div id="pbar"><i id="prog"></i></div>
+<button id="bang">BIG BANG</button>
+<div id="modes"><button id="m-tl" aria-label="Timeline">⏳</button><button id="m-bh" aria-label="Trous noirs">⚫</button><button id="m-life" aria-label="La vie">🧬</button><button id="m-ex" aria-label="Explorer en 3D">🌌</button><button id="m-panel" aria-label="Menus">☰</button><button id="snd" aria-label="Son">🔊</button></div>
+<div id="res"></div><div id="toast"></div>
+<section id="hp" hidden><div id="hpt"><button data-t="stats">Stats</button><button data-t="create">Créer</button><button data-t="evo">Évolution</button><button data-t="set">Réglages</button></div><div id="hpb"></div><button id="hpx" aria-label="Fermer">✕</button></section>
+<div id="mode" hidden><canvas id="mc"></canvas><div id="mui"></div><button id="mx" aria-label="Fermer">✕</button></div>
+<footer class="hud" id="bot">
+  <button id="zout" aria-label="Dézoomer">−</button>
+  <span id="zoom">×1.00</span>
+  <button id="zin" aria-label="Zoomer">+</button>
+  <button id="home" aria-label="Recentrer sur la planète">◎</button>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
+<script src="src/config.js"></script>
+<script src="src/core/Save.js"></script>
+<script src="src/core/Sound.js"></script>
+<script src="src/core/Quality.js"></script>
+<script src="src/utils/noise.js"></script>
+<script src="src/modes/Modes.js"></script>
+<script src="src/modes/Timeline.js"></script>
+<script src="src/modes/BlackHole.js"></script>
+<script src="src/modes/Life.js"></script>
+<script src="src/modes/Explore3D.js"></script>
+<script src="src/modes/Infini.js"></script>
+<script src="src/systems/Background.js"></script>
+<script src="src/systems/CameraController.js"></script>
+<script src="src/systems/Genesis.js"></script>
+<script src="src/systems/Monster3D.js"></script>
+<script src="src/systems/Cosmos.js"></script>
+<script src="src/objects/Planet.js"></script>
+<script src="src/ui/Hud.js"></script>
+<script src="src/ui/Panels.js"></script>
+<script src="src/scenes/BootScene.js"></script>
+<script src="src/scenes/UniverseScene.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
