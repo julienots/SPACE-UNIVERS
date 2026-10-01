@@ -1,13 +1,16 @@
 // ===== QUALITÉ GRAPHIQUE ADAPTATIVE (v0.5) =====
-// 3 paliers (bas / moyen / haut) ; en mode auto, surveille le FPS et descend (ou remonte) d'un palier.
+// 4 paliers manuels (bas / moyen / haut / ultra) ; en mode auto, surveille le FPS entre bas et haut.
 window.CU = window.CU || {};
 CU.Q = (function () {
-  const T = { low: { poolMul: 0.5, dpr: 1 }, med: { poolMul: 0.75, dpr: 1.05 }, high: { poolMul: 1, dpr: 1.25 } }, ORDER = ['low', 'med', 'high'];
+  // Ultra privilégie la netteté des planètes et des surfaces. Il reste manuel :
+  // le mode adaptatif ne le sélectionne jamais afin de préserver les mobiles.
+  const T = { low: { poolMul: 0.5, dpr: 1 }, med: { poolMul: 0.75, dpr: 1.05 }, high: { poolMul: 1, dpr: 1.25 }, ultra: { poolMul: 1.2, dpr: 1.55 } }, ORDER = ['low', 'med', 'high'];
   const Q = { tier: CU.mobile ? 'med' : 'high', poolMul: 1, dpr: 1.5, auto: true, fps: 60, listeners: [] };
-  function apply(t) { Q.tier = t; Q.poolMul = T[t].poolMul; Q.dpr = T[t].dpr; Q.listeners.forEach(f => { try { f(Q); } catch (e) {} }); }
-  Q.set = function (m) { // 'auto' | 'low' | 'med' | 'high'
-    CU.Save.d.quality = m; CU.Save.mark(); Q.auto = m === 'auto';
-    apply(m === 'auto' ? (CU.mobile ? 'med' : 'high') : m); bad = good = 0;
+  function apply(t) { const safe = T[t] ? t : (CU.mobile ? 'med' : 'high'); Q.tier = safe; Q.poolMul = T[safe].poolMul; Q.dpr = T[safe].dpr; Q.listeners.forEach(f => { try { f(Q); } catch (e) {} }); }
+  Q.set = function (m) { // 'auto' | 'low' | 'med' | 'high' | 'ultra'
+    const requested = m === 'auto' || T[m] ? m : 'auto';
+    CU.Save.d.quality = requested; CU.Save.mark(); Q.auto = requested === 'auto';
+    apply(requested === 'auto' ? (CU.mobile ? 'med' : 'high') : requested); bad = good = 0;
   };
   let bad = 0, good = 0;
   setInterval(function () {

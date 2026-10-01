@@ -45,8 +45,8 @@ CU.Panels = {
         el('div', 'hint2', 'Réglages', body);
         const snd = el('button', 'it', '<b>Sons</b><span>Effets et ambiance</span><em>' + (d.sound ? 'ON' : 'OFF') + '</em>', body);
         snd.onclick = () => { S.toggle(); $('snd').textContent = d.sound ? '🔊' : '🔇'; render(); };
-        [['auto', 'Auto'], ['low', 'Bas'], ['med', 'Moyen'], ['high', 'Haut']].forEach(a => {
-          const b = el('button', 'it' + (d.quality === a[0] ? ' sel' : ''), '<b>Qualité · ' + a[1] + '</b><span>' + (a[0] === 'auto' ? 'S\'adapte au FPS' : 'Particules ×' + ({ low: 0.5, med: 0.75, high: 1 })[a[0]]) + '</span><em>' + (d.quality === a[0] ? '●' : '○') + '</em>', body);
+        [['auto', 'Auto'], ['low', 'Bas'], ['med', 'Moyen'], ['high', 'Haut'], ['ultra', 'Ultra']].forEach(a => {
+          const b = el('button', 'it' + (d.quality === a[0] ? ' sel' : ''), '<b>Qualité · ' + a[1] + '</b><span>' + (a[0] === 'auto' ? 'S\'adapte au FPS' : a[0] === 'ultra' ? 'Textures 4K · relief fin · batterie élevée' : 'Particules ×' + ({ low: 0.5, med: 0.75, high: 1 })[a[0]]) + '</span><em>' + (d.quality === a[0] ? '●' : '○') + '</em>', body);
           b.onclick = () => { CU.Q.set(a[0]); S.ui(); render(); };
         });
         const rs = el('button', 'it off', '<b>Effacer la sauvegarde</b><span>Touche 2 fois pour confirmer</span><em>✕</em>', body); let arm = 0;
